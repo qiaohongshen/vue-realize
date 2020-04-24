@@ -1,12 +1,16 @@
 import { arrayMethods } from './array'
-import { isObject } from '../util/index'
+import { isObject, defineObserved } from '../util/index'
 
 class Obserber {
   constructor (value) {
     // 如果层级太多 需要递归去解析对象中的属性 依次增加get/set
 
+    // value.__ob__ = this // 给每个监控过的属性增加__ob__属性
+    defineObserved(value, '__ob__', this)
+    
     if (Array.isArray(value)) {
-      // 排除对数组索引的监测（1.性能问题 2.很少对索引进行操作 ） 重写数组方法
+      // 排除对数组索引的监测（1.性能问题 2.很少对索引进行操作 ）
+      // 重写数组方法
       value.__proto__ = arrayMethods
       this.observerArray(value)
     } else {
@@ -15,8 +19,8 @@ class Obserber {
     }
   }
 
-  obserberArray (value) {
-    for (let index = 0; index < array.length; index++) {
+  observerArray (value) {
+    for (let index = 0; index < value.length; index++) {
       observe(value[index])
     }
   }
